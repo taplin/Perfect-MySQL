@@ -1,98 +1,139 @@
-# Perfect - MySQL Connector
+# Perfect-MySQL
 
-<p align="center">
-    <a href="http://perfect.org/get-involved.html" target="_blank">
-        <img src="http://perfect.org/assets/github/perfect_github_2_0_0.jpg" alt="Get Involed with Perfect!" width="854" />
-    </a>
-</p>
+A Swift 6 wrapper around the MySQL client library (libmysqlclient), providing both a raw MySQL API and a PerfectCRUD integration layer.
 
-<p align="center">
-    <a href="https://github.com/PerfectlySoft/Perfect" target="_blank">
-        <img src="http://www.perfect.org/github/Perfect_GH_button_1_Star.jpg" alt="Star Perfect On Github" />
-    </a>  
-    <a href="http://stackoverflow.com/questions/tagged/perfect" target="_blank">
-        <img src="http://www.perfect.org/github/perfect_gh_button_2_SO.jpg" alt="Stack Overflow" />
-    </a>  
-    <a href="https://twitter.com/perfectlysoft" target="_blank">
-        <img src="http://www.perfect.org/github/Perfect_GH_button_3_twit.jpg" alt="Follow Perfect on Twitter" />
-    </a>  
-    <a href="http://perfect.ly" target="_blank">
-        <img src="http://www.perfect.org/github/Perfect_GH_button_4_slack.jpg" alt="Join the Perfect Slack" />
-    </a>
-</p>
+## Requirements
 
-<p align="center">
-    <a href="https://developer.apple.com/swift/" target="_blank">
-        <img src="https://img.shields.io/badge/Swift-4.1-orange.svg?style=flat" alt="Swift 4.1">
-    </a>
-    <a href="https://developer.apple.com/swift/" target="_blank">
-        <img src="https://img.shields.io/badge/Platforms-OS%20X%20%7C%20Linux%20-lightgray.svg?style=flat" alt="Platforms OS X | Linux">
-    </a>
-    <a href="http://perfect.org/licensing.html" target="_blank">
-        <img src="https://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat" alt="License Apache">
-    </a>
-    <a href="http://twitter.com/PerfectlySoft" target="_blank">
-        <img src="https://img.shields.io/badge/Twitter-@PerfectlySoft-blue.svg?style=flat" alt="PerfectlySoft Twitter">
-    </a>
-    <a href="http://perfect.ly" target="_blank">
-        <img src="http://perfect.ly/badge.svg" alt="Slack Status">
-    </a>
-</p>
+- Swift 6.0+
+- macOS 15+ / Ubuntu 20.04+
+- MySQL 8.0+ client library (libmysqlclient)
 
-This project provides a Swift wrapper around the MySQL client library, enabling access to MySQL database servers.
+## macOS Setup
 
-This package builds with Swift Package Manager and is part of the [Perfect](https://github.com/PerfectlySoft/Perfect) project. It was written to be stand-alone and so does not require PerfectLib or any other components.
+MySQL client is installed via Homebrew. It is **keg-only** (not linked into `/opt/homebrew`) so you also need `pkg-config` installed so SPM can locate the headers and libraries.
 
-Ensure you have installed and activated the latest Swift 4.1.2 tool chain.
-
-## macOS Build Notes
-
-This package requires the [Home Brew](http://brew.sh) build of MySQL.
-
-To install Home Brew:
-
-```
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```bash
+brew install mysql-client pkg-config
 ```
 
-To install MySQL:
+Then set `PKG_CONFIG_PATH` when building so SPM finds the `mysqlclient.pc` file:
 
-```
-brew install mysql@5.7
-```
-
-Unfortunately, at this point in time you will need to edit the mysqlclient.pc file located here:
-
-```
-/usr/local/lib/pkgconfig/mysqlclient.pc
+```bash
+export PKG_CONFIG_PATH="/opt/homebrew/opt/mysql-client/lib/pkgconfig:$PKG_CONFIG_PATH"
+swift build
 ```
 
-Remove the occurrance of "-fno-omit-frame-pointer". This file is read-only by default so you will need to change that first.
+To make this permanent, add the export to your shell profile (`~/.zshrc` or `~/.bash_profile`).
 
-If you get a **link error** while build in Xcode, please, close XCode, open a New terminal, go to the place where you have your Packages.swift and build the project again:
+> **Apple Silicon vs Intel:** Homebrew installs to `/opt/homebrew` on Apple Silicon and `/usr/local` on Intel. The path above is for Apple Silicon; substitute `/usr/local` if you're on an Intel Mac.
 
-```
-swift package generate-xcodeproj
-```
-After this you have to set the path for libraries again.
+## Linux Setup
 
-## Linux Build Notes
-
-Ensure that you have installed libmysqlclient-dev for MySQL version *5.6 or greater*.
-
-```
-sudo apt-get install libmysqlclient-dev
+```bash
+sudo apt-get install libmysqlclient-dev pkg-config
 ```
 
-Please note that Ubuntu 14 defaults to including a version of MySQL client which will not compile with this package. Install MySQL client version 5.6 or greater.
+MySQL 8.0+ is required. On Ubuntu 20.04 and later the default `libmysqlclient-dev` package satisfies this.
 
-## Building
+## Package.swift
 
-Add this project as a dependency in your Package.swift file.
+```swift
+.package(path: "../Perfect-MySQL"),  // local resurrection path
 
-``` swift
-.package(url:"https://github.com/PerfectlySoft/Perfect-MySQL.git", from: "3.0.0")
+// or when published:
+// .package(url: "https://github.com/your-org/Perfect-MySQL.git", from: "4.0.0")
 ```
 
-## Documentation
-For more information, please visit [perfect.org](http://www.perfect.org/docs/MySQL.html).
+```swift
+.target(
+    name: "MyTarget",
+    dependencies: [
+        .product(name: "PerfectMySQL", package: "Perfect-MySQL"),
+    ]
+)
+```
+
+## Usage
+
+### Raw MySQL API
+
+```swift
+import PerfectMySQL
+
+let mysql = MySQL()
+guard mysql.connect(host: "127.0.0.1", user: "root", password: "secret", db: "mydb") else {
+    print(mysql.errorMessage())
+    exit(1)
+}
+
+guard mysql.query(statement: "SELECT id, name FROM users") else {
+    print(mysql.errorMessage())
+    exit(1)
+}
+
+if let results = mysql.storeResults() {
+    results.forEachRow { row in
+        print(row[0] ?? "nil", row[1] ?? "nil")
+    }
+}
+```
+
+### PerfectCRUD Integration
+
+`MySQLDatabaseConfiguration` conforms to `DatabaseConfigurationProtocol` and `Sendable`, so it works directly with PerfectCRUD's `Database` and with PerfectNIO's `Routes.db()` helper.
+
+```swift
+import PerfectCRUD
+import PerfectMySQL
+
+struct User: Codable {
+    let id: Int
+    var name: String
+    var email: String
+}
+
+let config = try MySQLDatabaseConfiguration(
+    database: "mydb",
+    host: "127.0.0.1",
+    username: "root",
+    password: "secret"
+)
+
+let db = Database(configuration: config)
+try db.create(User.self, policy: .reconcileTable)
+
+let users = try db.table(User.self).where(\User.name == "Alice").select().map { $0 }
+```
+
+### With PerfectNIO Routes
+
+```swift
+import PerfectNIO
+import PerfectNIOCRUD
+import PerfectMySQL
+
+let routes = Routes()
+    .db(try MySQLDatabaseConfiguration(database: "mydb", host: "127.0.0.1")) { req, db in
+        try db.table(User.self).select().map { $0 }
+    }
+```
+
+## Running Tests
+
+Tests require a live MySQL server at `127.0.0.1` with a root account (no password) and permission to create/drop a database named `test`.
+
+```bash
+# Start MySQL if needed
+mysql.server start
+
+# Run tests with PKG_CONFIG_PATH set
+PKG_CONFIG_PATH=/opt/homebrew/opt/mysql-client/lib/pkgconfig swift test
+```
+
+## Notes on MySQL 8.0
+
+MySQL 8.0 removed the `my_bool` typedef that earlier versions used for nullable bool fields. This package's inline `mysqlclient` system library target provides a compatibility shim (`typedef signed char my_bool`) so the source compiles against both old and new client versions.
+
+## License
+
+Apache 2.0 — see [LICENSE](LICENSE).
