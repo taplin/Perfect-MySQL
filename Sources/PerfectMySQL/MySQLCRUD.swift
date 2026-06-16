@@ -8,7 +8,7 @@
 import Foundation
 import PerfectCRUD
 
-public struct MySQLCRUDError: Error, CustomStringConvertible {
+public struct MySQLCRUDError: Error, CustomStringConvertible, Sendable {
 	public let description: String
 	public init(_ msg: String) {
 		description = msg
@@ -19,7 +19,7 @@ public struct MySQLCRUDError: Error, CustomStringConvertible {
 // maps column name to position which must be computed once before row reading action
 typealias MySQLCRUDColumnMap = [String:Int]
 
-class MySQLCRUDRowReader<K : CodingKey>: KeyedDecodingContainerProtocol {
+class MySQLCRUDRowReader<K : CodingKey>: KeyedDecodingContainerProtocol, @unchecked Sendable {
 	typealias Key = K
 	var codingPath: [CodingKey] = []
 	var allKeys: [Key] = []
@@ -134,7 +134,7 @@ class MySQLCRUDRowReader<K : CodingKey>: KeyedDecodingContainerProtocol {
 			return ret as! T
 		case .data:
 			let bytes: [UInt8] = (val as? [UInt8]) ?? []
-			return Data(bytes: bytes) as! T
+			return Data(bytes) as! T
 		case .uuid:
 			guard let str = val as? String, let uuid = UUID(uuidString: str) else {
 				throw CRUDDecoderError("Invalid UUID string \(String(describing: val)).")
@@ -155,6 +155,8 @@ class MySQLCRUDRowReader<K : CodingKey>: KeyedDecodingContainerProtocol {
 				throw CRUDDecoderError("Unsupported type: \(type) for key: \(key.stringValue)")
 			}
 			return try JSONDecoder().decode(type, from: data)
+		case .wrapped:
+			throw CRUDDecoderError("Unsupported type: \(type) for key: \(key.stringValue)")
 		}
 	}
 	func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
@@ -171,7 +173,7 @@ class MySQLCRUDRowReader<K : CodingKey>: KeyedDecodingContainerProtocol {
 	}
 }
 
-struct MySQLColumnInfo: Codable {
+struct MySQLColumnInfo: Codable, Sendable {
 	enum CodingKeys: String, CodingKey {
 		case field = "Field", type = "Type", null = "Null", key = "Key"
 	}
@@ -188,7 +190,7 @@ struct MySQLColumnInfo: Codable {
 	}
 }
 
-class MySQLGenDelegate: SQLGenDelegate {
+class MySQLGenDelegate: SQLGenDelegate, @unchecked Sendable {
 	let database: MySQL
 	var parentTableStack: [TableStructure] = []
 	var bindings: Bindings = []
@@ -201,7 +203,7 @@ class MySQLGenDelegate: SQLGenDelegate {
 		return "() VALUES ()"
 	}
 	
-	func getBinding(for expr: Expression) throws -> String {
+	func getBinding(for expr: CRUDExpression) throws -> String {
 		bindings.append(("?", expr))
 		return "?"
 	}
@@ -339,6 +341,8 @@ class MySQLGenDelegate: SQLGenDelegate {
 				typeName = "longtext"
 			case .codable:
 				typeName = "json"
+			case .wrapped:
+				throw MySQLCRUDError("Unsupported SQL column type \(type)")
 			}
 		}
 		let addendum: String
@@ -355,7 +359,7 @@ class MySQLGenDelegate: SQLGenDelegate {
 
 typealias MySQLColumnMap = [String:Int]
 
-struct MySQLDirectExeDelegate: SQLExeDelegate {
+struct MySQLDirectExeDelegate: SQLExeDelegate, Sendable {
 	let connection: MySQL
 	let sql: String
 	func bind(_ bindings: Bindings, skip: Int) throws {
@@ -374,7 +378,7 @@ struct MySQLDirectExeDelegate: SQLExeDelegate {
 	}
 }
 
-class MySQLStmtExeDelegate: SQLExeDelegate {
+class MySQLStmtExeDelegate: SQLExeDelegate, @unchecked Sendable {
 	let connection: MySQL
 	let statement: MySQLStmt
 	var results: MySQLStmt.Results?
@@ -477,7 +481,7 @@ class MySQLStmtExeDelegate: SQLExeDelegate {
 	}
 }
 
-public struct MySQLDatabaseConfiguration: DatabaseConfigurationProtocol {
+public struct MySQLDatabaseConfiguration: DatabaseConfigurationProtocol, @unchecked Sendable {
 	let connection: MySQL
 	
 	public init(url: String?,

@@ -1783,58 +1783,6 @@ class PerfectMySQLTests: XCTestCase {
 		}
 	}
 	
-	static var allTests = [
-		("testConnect", testConnect),
-		("testListDbs1", testListDbs1),
-		("testListDbs2", testListDbs2),
-		("testListTables1", testListTables1),
-		("testListTables2", testListTables2),
-		("testQuery1", testQuery1),
-		("testQuery2", testQuery2),
-		("testInsertNull", testInsertNull),
-		("testQueryStmt1", testQueryStmt1),
-		("testQueryStmt2", testQueryStmt2),
-		("testServerVersion", testServerVersion),
-		("testQueryInt", testQueryInt),
-		("testQueryIntMin", testQueryIntMin),
-		("testQueryIntMax", testQueryIntMax),
-		("testQueryDecimal", testQueryDecimal),
-		("testStmtInt", testStmtInt),
-		("testStmtIntMin", testStmtIntMin),
-		("testStmtIntMax", testStmtIntMax),
-		("testStmtDecimal", testStmtDecimal),
-		("testFieldInfo", testFieldInfo),
-		
-		("testCreate1", testCreate1),
-		("testCreate2", testCreate2),
-		("testCreate3", testCreate3),
-		("testSelectAll", testSelectAll),
-		("testSelectIn", testSelectIn),
-		("testSelectLikeString", testSelectLikeString),
-		("testSelectJoin", testSelectJoin),
-		("testInsert1", testInsert1),
-		("testInsert2", testInsert2),
-		("testInsert3", testInsert3),
-		("testUpdate", testUpdate),
-		("testDelete", testDelete),
-		("testSelectLimit", testSelectLimit),
-		("testSelectLimitWhere", testSelectLimitWhere),
-		("testSelectOrderLimitWhere", testSelectOrderLimitWhere),
-		("testSelectWhereNULL", testSelectWhereNULL),
-		("testPersonThing", testPersonThing),
-		("testStandardJoin", testStandardJoin),
-		("testJunctionJoin", testJunctionJoin),
-		("testSelfJoin", testSelfJoin),
-		("testSelfJunctionJoin", testSelfJunctionJoin),
-		("testCodableProperty", testCodableProperty),
-		("testBadDecoding", testBadDecoding),
-		("testAllPrimTypes1", testAllPrimTypes1),
-		("testAllPrimTypes2", testAllPrimTypes2),
-		("testBespokeSQL", testBespokeSQL),
-		("testURL", testURL),
-		("testLastInsertId", testLastInsertId),
-		("testEmptyInsert", testEmptyInsert)
-	]
 }
 
 
