@@ -321,7 +321,9 @@ class MySQLGenDelegate: SQLGenDelegate, @unchecked Sendable {
 		case is Bool.Type:
 			typeName = "tinyint"
 		case is String.Type:
-			typeName = "longtext"
+			// MySQL cannot use LONGTEXT as a primary key without a prefix length.
+			// Use VARCHAR(255) for primary key columns; longtext for everything else.
+			typeName = column.properties.contains(.primaryKey) ? "varchar(255)" : "longtext"
 		default:
 			guard let special = SpecialType(type) else {
 				throw MySQLCRUDError("Unsupported SQL column type \(type)")
