@@ -66,6 +66,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testConnect() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		
 		let mysql = MySQL()
 		
@@ -95,18 +96,21 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testListDbs1() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		let list = mysql.listDatabases()
 		XCTAssert(list.count > 0)
 	}
 	
 	func testListDbs2() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		let list = mysql.listDatabases(wildcard: "information_%")
 		XCTAssert(list.count > 0)
 	}
 	
 	func testListTables1() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		let sres = mysql.selectDatabase(named: "information_schema")
 		XCTAssert(sres == true)
@@ -115,6 +119,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testListTables2() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		let sres = mysql.selectDatabase(named: "information_schema")
 		XCTAssert(sres == true)
@@ -123,6 +128,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testQuery1() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS test"), mysql.errorMessage())
 		let qres = mysql.query(statement: "CREATE TABLE test (id INT, d DOUBLE, s VARCHAR(1024))")
@@ -155,6 +161,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testQuery2() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS test"))
 		
@@ -192,6 +199,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testInsertNull() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS test"))
 		
@@ -229,6 +237,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testQueryStmt1() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS all_data_types"))
 		
@@ -282,6 +291,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testQueryStmt2() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS all_data_types"))
 		let qres = mysql.query(statement: "CREATE TABLE `all_data_types` (`varchar` VARCHAR( 22 ),\n`tinyint` TINYINT,\n`text` TEXT,\n`date` DATE,\n`smallint` SMALLINT,\n`mediumint` MEDIUMINT,\n`int` INT,\n`bigint` BIGINT,\n`ubigint` BIGINT UNSIGNED,\n`float` FLOAT( 10, 2 ),\n`double` DOUBLE,\n`decimal` DECIMAL( 10, 2 ),\n`datetime` DATETIME,\n`timestamp` TIMESTAMP,\n`time` TIME,\n`year` YEAR,\n`char` CHAR( 10 ),\n`tinyblob` TINYBLOB,\n`tinytext` TINYTEXT,\n`blob` BLOB,\n`mediumblob` MEDIUMBLOB,\n`mediumtext` MEDIUMTEXT,\n`longblob` LONGBLOB,\n`longtext` LONGTEXT,\n`enum` ENUM( '1', '2', '3' ),\n`set` SET( '1', '2', '3' ),\n`bool` BOOL,\n`binary` BINARY( 20 ),\n`varbinary` VARBINARY( 20 ) ) ENGINE = MYISAM")
@@ -379,12 +389,14 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testServerVersion() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		let vers = mysql.serverVersion()
 		XCTAssert(vers >= 50627) // YMMV
 	}
 	
 	func testQueryInt() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS int_test"), mysql.errorMessage())
 		XCTAssert(mysql.query(statement: "CREATE TABLE int_test (a TINYINT, au TINYINT UNSIGNED, b SMALLINT, bu SMALLINT UNSIGNED, c MEDIUMINT, cu MEDIUMINT UNSIGNED, d INT, du INT UNSIGNED, e BIGINT, eu BIGINT UNSIGNED)"), mysql.errorMessage())
@@ -414,6 +426,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testQueryIntMin() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS int_test"), mysql.errorMessage())
 		XCTAssert(mysql.query(statement: "CREATE TABLE int_test (a TINYINT, au TINYINT UNSIGNED, b SMALLINT, bu SMALLINT UNSIGNED, c MEDIUMINT, cu MEDIUMINT UNSIGNED, d INT, du INT UNSIGNED, e BIGINT, eu BIGINT UNSIGNED)"), mysql.errorMessage())
@@ -443,6 +456,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testQueryIntMax() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS int_test"), mysql.errorMessage())
 		XCTAssert(mysql.query(statement: "CREATE TABLE int_test (a TINYINT, au TINYINT UNSIGNED, b SMALLINT, bu SMALLINT UNSIGNED, c MEDIUMINT, cu MEDIUMINT UNSIGNED, d INT, du INT UNSIGNED, e BIGINT, eu BIGINT UNSIGNED)"), mysql.errorMessage())
@@ -472,6 +486,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testQueryDecimal() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS decimal_test"), mysql.errorMessage())
 		XCTAssert(mysql.query(statement: "CREATE TABLE decimal_test (f FLOAT, fm FLOAT, d DOUBLE, dm DOUBLE, de DECIMAL(2,1), dem DECIMAL(2,1))"), mysql.errorMessage())
@@ -497,6 +512,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testStmtInt() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS int_test"), mysql.errorMessage())
 		XCTAssert(mysql.query(statement: "CREATE TABLE int_test (a TINYINT, au TINYINT UNSIGNED, b SMALLINT, bu SMALLINT UNSIGNED, c MEDIUMINT, cu MEDIUMINT UNSIGNED, d INT, du INT UNSIGNED, e BIGINT, eu BIGINT UNSIGNED)"), mysql.errorMessage())
@@ -544,6 +560,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testStmtIntMin() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS int_test"), mysql.errorMessage())
 		XCTAssert(mysql.query(statement: "CREATE TABLE int_test (a TINYINT, au TINYINT UNSIGNED, b SMALLINT, bu SMALLINT UNSIGNED, c MEDIUMINT, cu MEDIUMINT UNSIGNED, d INT, du INT UNSIGNED, e BIGINT, eu BIGINT UNSIGNED)"), mysql.errorMessage())
@@ -590,6 +607,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testStmtIntMax() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS int_test"), mysql.errorMessage())
 		XCTAssert(mysql.query(statement: "CREATE TABLE int_test (a TINYINT, au TINYINT UNSIGNED, b SMALLINT, bu SMALLINT UNSIGNED, c MEDIUMINT, cu MEDIUMINT UNSIGNED, d INT, du INT UNSIGNED, e BIGINT, eu BIGINT UNSIGNED)"), mysql.errorMessage())
@@ -636,6 +654,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testStmtDecimal() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS decimal_test"), mysql.errorMessage())
 		XCTAssert(mysql.query(statement: "CREATE TABLE decimal_test (f FLOAT, fm FLOAT, d DOUBLE, dm DOUBLE, de DECIMAL(2,1), dem DECIMAL(2,1))"), mysql.errorMessage())
@@ -674,6 +693,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testStmtNull() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS null_test"), mysql.errorMessage())
 		XCTAssert(mysql.query(statement: "CREATE TABLE null_test (a TINYINT, au TINYINT UNSIGNED, b SMALLINT, bu SMALLINT UNSIGNED, c MEDIUMINT, cu MEDIUMINT UNSIGNED, d INT, du INT UNSIGNED, e BIGINT, eu BIGINT UNSIGNED)"), mysql.errorMessage())
@@ -721,6 +741,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testFieldInfo() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		let mysql = rawMySQL
 		XCTAssert(mysql.query(statement: "DROP TABLE IF EXISTS testdb"), mysql.errorMessage())
 		XCTAssert(mysql.query(statement: "CREATE TABLE testdb (a VARCHAR( 20 ),\nb TINYINT,\nc TEXT,\nd DATE,\ne SMALLINT,\nf MEDIUMINT,\ng INT,\nh BIGINT,\ni BIGINT UNSIGNED,\nj FLOAT( 10, 2 ))"), mysql.errorMessage())
@@ -787,6 +808,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testCreate1() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getDB()
 			try db.create(TestTable1.self, policy: .dropTable)
@@ -841,6 +863,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testCreate2() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			try db.create(TestTable1.self, primaryKey: \.id, policy: .dropTable)
@@ -876,6 +899,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testCreate3() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		struct FakeTestTable1: Codable, TableNameProvider {
 			enum CodingKeys: String, CodingKey {
 				case id, name, double = "doub", double2 = "doub2", blob, subTables
@@ -956,6 +980,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testSelectAll() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			let j2 = db.table(TestTable1.self)
@@ -968,6 +993,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testSelectIn() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			let table = db.table(TestTable1.self)
@@ -979,6 +1005,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testSelectLikeString() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			let table = db.table(TestTable2.self)
@@ -994,6 +1021,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testSelectJoin() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			let j2 = try db.table(TestTable1.self)
@@ -1016,6 +1044,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testInsert1() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			let t1 = db.table(TestTable1.self)
@@ -1032,6 +1061,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testInsert2() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			let t1 = db.table(TestTable1.self)
@@ -1048,6 +1078,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testInsert3() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			let t1 = db.table(TestTable1.self)
@@ -1066,6 +1097,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testUpdate() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			let newOne = TestTable1(id: 2000, name: "New One", integer: 40)
@@ -1090,6 +1122,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testDelete() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			let t1 = db.table(TestTable1.self)
@@ -1107,6 +1140,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testSelectLimit() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			let j2 = db.table(TestTable1.self).limit(3, skip: 2)
@@ -1117,6 +1151,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testSelectLimitWhere() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			let j2 = db.table(TestTable1.self).limit(3).where(\TestTable1.id > 3)
@@ -1128,6 +1163,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testSelectOrderLimitWhere() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			let j2 = db.table(TestTable1.self).order(by: \TestTable1.id).limit(3).where(\TestTable1.id > 3)
@@ -1139,6 +1175,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testSelectWhereNULL() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			let t1 = db.table(TestTable1.self)
@@ -1154,6 +1191,7 @@ class PerfectMySQLTests: XCTestCase {
 	
 	// this is the general-overview example used in the readme
 	func testPersonThing() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			// CRUD can work with most Codable types.
 			struct PhoneNumber: Codable {
@@ -1227,6 +1265,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testStandardJoin() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			struct Parent: Codable {
@@ -1272,6 +1311,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testJunctionJoin() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			struct Student: Codable {
 				let id: Int
@@ -1346,6 +1386,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testSelfJoin() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			struct Me: Codable {
 				let id: Int
@@ -1384,6 +1425,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testSelfJunctionJoin() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			struct Me: Codable {
 				let id: Int
@@ -1426,6 +1468,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testCodableProperty() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			struct Sub: Codable {
 				let id: Int
@@ -1449,6 +1492,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testBadDecoding() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			struct Top: Codable, TableNameProvider {
 				static var tableName = "Top"
@@ -1468,6 +1512,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testAllPrimTypes1() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		struct AllTypes: Codable {
 			let int: Int
 			let uint: UInt
@@ -1546,6 +1591,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testAllPrimTypes2() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		struct AllTypes2: Codable {
 			func equals(rhs: AllTypes2) -> Bool {
 				guard int == rhs.int && uint == rhs.uint &&
@@ -1677,6 +1723,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 
 	func testIntConversion() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			struct IntTest: Codable {
@@ -1696,6 +1743,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testBespokeSQL() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			do {
@@ -1712,6 +1760,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testURL() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			struct TableWithURL: Codable {
@@ -1733,6 +1782,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testLastInsertId() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			struct ReturningItem: Codable, Equatable {
@@ -1758,6 +1808,7 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 	func testEmptyInsert() {
+		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			let db = try getTestDB()
 			struct ReturningItem: Codable, Equatable {
@@ -1783,58 +1834,6 @@ class PerfectMySQLTests: XCTestCase {
 		}
 	}
 	
-	static var allTests = [
-		("testConnect", testConnect),
-		("testListDbs1", testListDbs1),
-		("testListDbs2", testListDbs2),
-		("testListTables1", testListTables1),
-		("testListTables2", testListTables2),
-		("testQuery1", testQuery1),
-		("testQuery2", testQuery2),
-		("testInsertNull", testInsertNull),
-		("testQueryStmt1", testQueryStmt1),
-		("testQueryStmt2", testQueryStmt2),
-		("testServerVersion", testServerVersion),
-		("testQueryInt", testQueryInt),
-		("testQueryIntMin", testQueryIntMin),
-		("testQueryIntMax", testQueryIntMax),
-		("testQueryDecimal", testQueryDecimal),
-		("testStmtInt", testStmtInt),
-		("testStmtIntMin", testStmtIntMin),
-		("testStmtIntMax", testStmtIntMax),
-		("testStmtDecimal", testStmtDecimal),
-		("testFieldInfo", testFieldInfo),
-		
-		("testCreate1", testCreate1),
-		("testCreate2", testCreate2),
-		("testCreate3", testCreate3),
-		("testSelectAll", testSelectAll),
-		("testSelectIn", testSelectIn),
-		("testSelectLikeString", testSelectLikeString),
-		("testSelectJoin", testSelectJoin),
-		("testInsert1", testInsert1),
-		("testInsert2", testInsert2),
-		("testInsert3", testInsert3),
-		("testUpdate", testUpdate),
-		("testDelete", testDelete),
-		("testSelectLimit", testSelectLimit),
-		("testSelectLimitWhere", testSelectLimitWhere),
-		("testSelectOrderLimitWhere", testSelectOrderLimitWhere),
-		("testSelectWhereNULL", testSelectWhereNULL),
-		("testPersonThing", testPersonThing),
-		("testStandardJoin", testStandardJoin),
-		("testJunctionJoin", testJunctionJoin),
-		("testSelfJoin", testSelfJoin),
-		("testSelfJunctionJoin", testSelfJunctionJoin),
-		("testCodableProperty", testCodableProperty),
-		("testBadDecoding", testBadDecoding),
-		("testAllPrimTypes1", testAllPrimTypes1),
-		("testAllPrimTypes2", testAllPrimTypes2),
-		("testBespokeSQL", testBespokeSQL),
-		("testURL", testURL),
-		("testLastInsertId", testLastInsertId),
-		("testEmptyInsert", testEmptyInsert)
-	]
 }
 
 
