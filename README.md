@@ -105,6 +105,35 @@ try db.create(User.self, policy: .reconcileTable)
 let users = try db.table(User.self).where(\User.name == "Alice").select().map { $0 }
 ```
 
+### Dynamic PerfectCRUD Rows
+
+Perfect-MySQL also supports PerfectCRUD's dynamic read API. This is useful for
+runtime-driven callers such as template engines, admin tools, and query builders
+where the table, selected fields, predicates, and ordering are not known at
+compile time.
+
+```swift
+let result = try db.select(DynamicQuery(
+    table: "products",
+    fields: ["id", "sku", "name"],
+    predicates: [
+        DynamicPredicate(
+            field: "active",
+            comparison: .equal,
+            value: .int(1)
+        ),
+    ],
+    limit: 25
+))
+
+for row in result.rows {
+    print(row["sku"] ?? .null)
+}
+```
+
+The connector converts MySQL statement rows into `DynamicRow` values while still
+using PerfectCRUD's identifier quoting, bound values, and statement execution.
+
 ### With PerfectNIO Routes
 
 ```swift
@@ -120,15 +149,36 @@ let routes = Routes()
 
 ## Running Tests
 
-Tests require a live MySQL server at `127.0.0.1` with a root account (no password) and permission to create/drop a database named `test`.
+The default test suite is safe to run without a live MySQL server:
 
 ```bash
-# Start MySQL if needed
-mysql.server start
-
 # Run tests with PKG_CONFIG_PATH set
 PKG_CONFIG_PATH=/opt/homebrew/opt/mysql-client/lib/pkgconfig swift test
 ```
+
+Live MySQL tests are opt-in. Configure a disposable test account and schema
+prefix with environment variables instead of relying on a passwordless root
+installation:
+
+```bash
+MYSQL_FIXTURE_TESTS=1 \
+MYSQL_TEST_HOST=localhost \
+MYSQL_TEST_DATABASE=perfect_mysql_fixture \
+MYSQL_TEST_USER=perfect_test \
+MYSQL_TEST_PASSWORD='...' \
+PKG_CONFIG_PATH=/opt/homebrew/opt/mysql-client/lib/pkgconfig \
+swift test
+```
+
+`MYSQL_TEST_DATABASE` is treated as a prefix. Fixture tests append a unique
+suffix so Swift Testing can run live database tests in parallel, create the
+schema, load `Tests/PerfectMySQLTests/Fixtures/sample_catalog_cart.sql`, query
+it, and drop it afterward. The configured user should have privileges to create
+and drop schemas matching that prefix, for example `perfect_mysql_fixture_%`.
+
+The older XCTest integration tests still use `MYSQL_TESTS=1` and the same
+`MYSQL_TEST_*` variables when you explicitly want to run the broader legacy
+connector suite.
 
 ## Notes on MySQL 8.0
 

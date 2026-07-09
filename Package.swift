@@ -34,6 +34,9 @@ let package = Package(
             dependencies: [
                 "PerfectMySQL",
                 .product(name: "PerfectCRUD", package: "Perfect-CRUD"),
+            ],
+            resources: [
+                .process("Fixtures"),
             ]
         ),
     ]

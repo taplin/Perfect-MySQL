@@ -428,6 +428,20 @@ class MySQLStmtExeDelegate: SQLExeDelegate, @unchecked Sendable {
 															columns: columnMap,
 															row: row))
 	}
+
+	func nextDynamicRow() throws -> DynamicRow? {
+		guard let row = results?.currentRow() else {
+			return nil
+		}
+		var values: [String: DynamicValue] = [:]
+		for (name, index) in columnMap {
+			guard row.indices.contains(index) else {
+				throw MySQLCRUDError("Missing dynamic row value for column \(name).")
+			}
+			values[name] = try mysqlDynamicValue(row[index], column: name)
+		}
+		return DynamicRow(values)
+	}
 	
 	private func bindOne(expr: CRUDExpression) throws {
 		switch expr {
@@ -480,6 +494,51 @@ class MySQLStmtExeDelegate: SQLExeDelegate, @unchecked Sendable {
 		case .sblob(let b):
 			statement.bindParam(b)
 		}
+	}
+}
+
+func mysqlDynamicValue(_ value: Any?, column: String) throws -> DynamicValue {
+	switch value {
+	case nil:
+		return .null
+	case let value as Bool:
+		return .bool(value)
+	case let value as Int:
+		return .int(Int64(value))
+	case let value as Int8:
+		return .int(Int64(value))
+	case let value as Int16:
+		return .int(Int64(value))
+	case let value as Int32:
+		return .int(Int64(value))
+	case let value as Int64:
+		return .int(value)
+	case let value as UInt:
+		return .uint(UInt64(value))
+	case let value as UInt8:
+		return .uint(UInt64(value))
+	case let value as UInt16:
+		return .uint(UInt64(value))
+	case let value as UInt32:
+		return .uint(UInt64(value))
+	case let value as UInt64:
+		return .uint(value)
+	case let value as Float:
+		return .double(Double(value))
+	case let value as Double:
+		return .double(value)
+	case let value as String:
+		return .string(value)
+	case let value as [UInt8]:
+		return .bytes(value)
+	case let value as [Int8]:
+		return .bytes(value.map(UInt8.init(bitPattern:)))
+	case let value as Date:
+		return .date(value)
+	default:
+		throw MySQLCRUDError(
+			"Unsupported dynamic value type \(type(of: value)) for column \(column)."
+		)
 	}
 }
 

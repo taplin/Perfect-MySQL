@@ -23,25 +23,30 @@ import PerfectCRUD
 
 let testDBRowCount = 5
 #if os(macOS)
-let testHost = "127.0.0.1"
+let defaultTestHost = "127.0.0.1"
 #else
-let testHost = "host.docker.internal"
+let defaultTestHost = "host.docker.internal"
 #endif
-let testUser = "root"
-let testPassword = ""
-let testDB = "test"
+let testHost = ProcessInfo.processInfo.environment["MYSQL_TEST_HOST"] ?? defaultTestHost
+let testPort = ProcessInfo.processInfo.environment["MYSQL_TEST_PORT"].flatMap(Int.init)
+let testAdminDB = ProcessInfo.processInfo.environment["MYSQL_TEST_ADMIN_DATABASE"] ?? "mysql"
+let testUser = ProcessInfo.processInfo.environment["MYSQL_TEST_USER"] ?? "root"
+let testPassword = ProcessInfo.processInfo.environment["MYSQL_TEST_PASSWORD"] ?? ""
+let testDB = ProcessInfo.processInfo.environment["MYSQL_TEST_DATABASE"] ?? "test"
 typealias DBConfiguration = MySQLDatabaseConfiguration
 func getDB(reset: Bool = true) throws -> Database<DBConfiguration> {
 	if reset {
-		let db = Database(configuration: try DBConfiguration(database: "mysql",
+		let db = Database(configuration: try DBConfiguration(database: testAdminDB,
 															 host: testHost,
+															 port: testPort,
 															 username: testUser,
 															 password: testPassword))
-		try db.sql("DROP DATABASE \(testDB)")
-		try db.sql("CREATE DATABASE \(testDB) DEFAULT CHARACTER SET utf8mb4")
+		try db.sql("DROP DATABASE IF EXISTS `\(testDB)`")
+		try db.sql("CREATE DATABASE `\(testDB)` DEFAULT CHARACTER SET utf8mb4")
 	}
 	return Database(configuration: try DBConfiguration(database: testDB,
 													   host: testHost,
+													   port: testPort,
 													   username: testUser,
 													   password: testPassword))
 }
@@ -50,8 +55,8 @@ var rawMySQL: MySQL {
 	let mysql = MySQL()
 	mysql.setOption(.MYSQL_OPT_CONNECT_TIMEOUT, 5)
 	mysql.setOption(.MYSQL_SET_CHARSET_NAME, "utf8mb4")
-	_ = mysql.connect(host: testHost, user: testUser, password: testPassword, db: "mysql")
-	_ = mysql.query(statement: "CREATE DATABASE \(testDB) DEFAULT CHARACTER SET utf8mb4")
+	_ = mysql.connect(host: testHost, user: testUser, password: testPassword, db: testAdminDB, port: UInt32(testPort ?? 0))
+	_ = mysql.query(statement: "CREATE DATABASE IF NOT EXISTS `\(testDB)` DEFAULT CHARACTER SET utf8mb4")
 	_ = mysql.selectDatabase(named: testDB)
 	return mysql
 }
@@ -1495,11 +1500,11 @@ class PerfectMySQLTests: XCTestCase {
 		guard ProcessInfo.processInfo.environment["MYSQL_TESTS"] == "1" else { return }
 		do {
 			struct Top: Codable, TableNameProvider {
-				static var tableName = "Top"
+				static let tableName = "Top"
 				let id: Int
 			}
 			struct NTop: Codable, TableNameProvider {
-				static var tableName = "Top"
+				static let tableName = "Top"
 				let nid: Int
 			}
 			let db = try getTestDB()
@@ -1835,5 +1840,3 @@ class PerfectMySQLTests: XCTestCase {
 	}
 	
 }
-
-
