@@ -442,7 +442,16 @@ class MySQLStmtExeDelegate: SQLExeDelegate, @unchecked Sendable {
 		}
 		return DynamicRow(values)
 	}
-	
+
+	func affectedRowCount() -> Int {
+		Int(statement.affectedRows())
+	}
+
+	func lastInsertedID() -> Int64? {
+		let id = statement.insertId()
+		return id == 0 ? nil : Int64(id)
+	}
+
 	private func bindOne(expr: CRUDExpression) throws {
 		switch expr {
 		case .lazy(let e):
