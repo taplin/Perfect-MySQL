@@ -2,11 +2,18 @@
 
 A Swift 6 wrapper around the MySQL client library (libmysqlclient), providing both a raw MySQL API and a PerfectCRUD integration layer.
 
+## Status
+
+Perfect-MySQL is core infrastructure in the Perfect-Resurrection ecosystem, not a standalone/experimental library. It is depended on directly by [Perfect-Lasso](https://github.com/taplin/Perfect-Lasso) (the real e-commerce product), and by Perfect-NIO, Perfect-Session, and PerfectTemplate. It is the active production database driver behind the live scrubsSite deployment. Regressions here affect a running site, not just this repo's own test suite.
+
+An `mysql-nio`-based async rewrite was considered and deliberately deferred — see [`Documentation/mysql-nio-integration-plan.md`](Documentation/mysql-nio-integration-plan.md) for the tradeoffs. This package remains the synchronous, blocking libmysqlclient wrapper described below.
+
 ## Requirements
 
-- Swift 6.0+
-- macOS 15+ / Ubuntu 20.04+
+- Swift 6.2+ (see `// swift-tools-version: 6.2` in `Package.swift`)
+- macOS 26+ (Tahoe) — required by the Homebrew `mysql-client` formula, which is keg-only and built for macOS 26 minimum — or Linux with `libmysqlclient-dev` (no specific minimum distro version is enforced by `Package.swift`; Ubuntu 20.04+ is a reasonable practical floor)
 - MySQL 8.0+ client library (libmysqlclient)
+- A sibling checkout of [Perfect-CRUD](../Perfect-CRUD) one directory above this repo — `Package.swift` depends on it via a relative path (`.package(path: "../Perfect-CRUD")`), not a URL, so this package cannot resolve on its own if cloned in isolation
 
 ## macOS Setup
 
@@ -38,10 +45,10 @@ MySQL 8.0+ is required. On Ubuntu 20.04 and later the default `libmysqlclient-de
 ## Package.swift
 
 ```swift
-.package(path: "../Perfect-MySQL"),  // local resurrection path
+.package(path: "../Perfect-MySQL"),  // local resurrection path — requires a sibling ../Perfect-CRUD checkout too
 
-// or when published:
-// .package(url: "https://github.com/your-org/Perfect-MySQL.git", from: "4.0.0")
+// or from the repo directly (no tagged releases exist yet, so pin a commit/branch rather than a version):
+// .package(url: "https://github.com/taplin/Perfect-MySQL.git", branch: "main")
 ```
 
 ```swift
