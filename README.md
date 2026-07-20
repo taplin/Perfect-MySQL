@@ -4,7 +4,7 @@ A Swift 6 wrapper around the MySQL client library (libmysqlclient), providing bo
 
 ## Status
 
-Perfect-MySQL is core infrastructure in the Perfect-Resurrection ecosystem, not a standalone/experimental library. It is depended on directly by [Perfect-Lasso](https://github.com/taplin/Perfect-Lasso) (the real e-commerce product), and by Perfect-NIO, Perfect-Session, and PerfectTemplate. It is the active production database driver behind the live scrubsSite deployment. Regressions here affect a running site, not just this repo's own test suite.
+Perfect-MySQL is core infrastructure in the Perfect-Resurrection ecosystem, not a standalone/experimental library. It is depended on directly by [Perfect-Lasso](https://github.com/taplin/Perfect-Lasso) — a Swift reimplementation of the Lasso language, still in active development and not yet production-ready, though validated against real code from multiple production e-commerce sites — and by Perfect-NIO, Perfect-Session, and PerfectTemplate. It is the database driver used throughout that development and validation work. Regressions here affect that ongoing validation, not just this repo's own test suite.
 
 An `mysql-nio`-based async rewrite was considered and deliberately deferred — see [`Documentation/mysql-nio-integration-plan.md`](Documentation/mysql-nio-integration-plan.md) for the tradeoffs. This package remains the synchronous, blocking libmysqlclient wrapper described below.
 
