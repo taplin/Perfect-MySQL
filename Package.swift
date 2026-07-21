@@ -10,7 +10,7 @@ let package = Package(
         .library(name: "PerfectMySQL", targets: ["PerfectMySQL"])
     ],
     dependencies: [
-        .package(path: "../Perfect-CRUD"),
+        .package(url: "https://github.com/taplin/Perfect-CRUD.git", branch: "main"),
     ],
     targets: [
         // Inline system library wrapping libmysqlclient — replaces Perfect-mysqlclient
