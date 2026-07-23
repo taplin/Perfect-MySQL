@@ -6,6 +6,11 @@
 //
 
 import mysqlclient
+#if canImport(Glibc)
+import Glibc
+#elseif canImport(Darwin)
+import Darwin
+#endif
 
 /// handles mysql prepared statements
 public final class MySQLStmt: @unchecked Sendable {

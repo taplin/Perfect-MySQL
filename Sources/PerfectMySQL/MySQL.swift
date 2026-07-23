@@ -6,6 +6,11 @@
 //
 
 import mysqlclient
+#if canImport(Glibc)
+import Glibc
+#elseif canImport(Darwin)
+import Darwin
+#endif
 
 /// Provide access to MySQL connector functions
 public final class MySQL: @unchecked Sendable {
