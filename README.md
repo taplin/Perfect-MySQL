@@ -10,10 +10,10 @@ An `mysql-nio`-based async rewrite was considered and deliberately deferred — 
 
 ## Requirements
 
-- Swift 6.2+ (see `// swift-tools-version: 6.2` in `Package.swift`)
-- macOS 26+ (Tahoe) — required by the Homebrew `mysql-client` formula, which is keg-only and built for macOS 26 minimum — or Linux with `libmysqlclient-dev` (no specific minimum distro version is enforced by `Package.swift`; Ubuntu 20.04+ is a reasonable practical floor)
+- Swift 6.2+ (`Package.swift` declares `platforms: [.macOS(.v12)]`)
+- macOS: the Homebrew `mysql-client` formula is keg-only and bottled for a specific macOS floor that moves as Homebrew rotates supported OS versions — check `brew info mysql-client` for the current bottle tag before assuming compatibility (at time of writing, `sonoma`/14.0+) — or Linux with `libmysqlclient-dev` (no specific minimum distro version is enforced by `Package.swift`; Ubuntu 20.04+ is a reasonable practical floor)
 - MySQL 8.0+ client library (libmysqlclient)
-- A sibling checkout of [Perfect-CRUD](../Perfect-CRUD) one directory above this repo — `Package.swift` depends on it via a relative path (`.package(path: "../Perfect-CRUD")`), not a URL, so this package cannot resolve on its own if cloned in isolation
+- `Package.swift` depends on [Perfect-CRUD](https://github.com/taplin/Perfect-CRUD) via `.package(url:, branch: "main")` — resolved by SwiftPM automatically, no sibling checkout needed
 
 ## macOS Setup
 
@@ -45,10 +45,8 @@ MySQL 8.0+ is required. On Ubuntu 20.04 and later the default `libmysqlclient-de
 ## Package.swift
 
 ```swift
-.package(path: "../Perfect-MySQL"),  // local resurrection path — requires a sibling ../Perfect-CRUD checkout too
-
-// or from the repo directly (no tagged releases exist yet, so pin a commit/branch rather than a version):
-// .package(url: "https://github.com/taplin/Perfect-MySQL.git", branch: "main")
+// No tagged releases exist yet, so pin a branch rather than a version:
+.package(url: "https://github.com/taplin/Perfect-MySQL.git", branch: "main"),
 ```
 
 ```swift
