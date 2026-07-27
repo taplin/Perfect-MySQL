@@ -194,7 +194,15 @@ class MySQLGenDelegate: SQLGenDelegate, @unchecked Sendable {
 	let database: MySQL
 	var parentTableStack: [TableStructure] = []
 	var bindings: Bindings = []
-	
+	// FOREIGN KEY clauses accumulated per-column by getColumnDefinition(_:),
+	// emitted alongside the column list in getCreateTableSQL. Mirrors
+	// Perfect-SQLite's SQLiteGenDelegate.extraCreate -- this connector's own
+	// getColumnDefinition only ever branched on .primaryKey, never
+	// .foreignKey (ADR-0001 Phase 4), so @ForeignKey silently produced no
+	// constraint at all on MySQL/MariaDB while SQLite/Postgres emitted a
+	// real one for the exact same model.
+	var extraCreate: [String] = []
+
 	init(connection db: MySQL) {
 		database = db
 	}
@@ -248,10 +256,14 @@ class MySQLGenDelegate: SQLGenDelegate, @unchecked Sendable {
 			}
 			return sub
 		} else {
+			// getColumnDefinition(_:) populates `extraCreate` (FOREIGN KEY
+			// clauses) as a side effect while mapping columns -- must be read
+			// after the map, not before.
+			let columnDefs = try forTable.columns.map { try getColumnDefinition($0) }
 			sub += [
 				"""
 				CREATE TABLE IF NOT EXISTS \(try quote(identifier: forTable.tableName)) (
-				\(try forTable.columns.map { try getColumnDefinition($0) }.joined(separator: ",\n\t"))
+				\((columnDefs + extraCreate).joined(separator: ",\n\t"))
 				)
 				"""]
 		}
@@ -347,13 +359,34 @@ class MySQLGenDelegate: SQLGenDelegate, @unchecked Sendable {
 				throw MySQLCRUDError("Unsupported SQL column type \(type)")
 			}
 		}
-		let addendum: String
-		if column.properties.contains(.primaryKey) {
-			addendum = " PRIMARY KEY"
-		} else if !column.optional {
-			addendum = " NOT NULL"
-		} else {
-			addendum = ""
+		var addendum = ""
+		for prop in column.properties {
+			switch prop {
+			case .primaryKey:
+				addendum += " PRIMARY KEY"
+			case .foreignKey(let table, let column, let onDelete, let onUpdate):
+				var str = "FOREIGN KEY (\(try quote(identifier: name))) REFERENCES \(try quote(identifier: table))(\(try quote(identifier: column)))"
+				let scenarios = [(" ON DELETE ", onDelete), (" ON UPDATE ", onUpdate)]
+				for (scenario, action) in scenarios {
+					str += scenario
+					switch action {
+					case .ignore:
+						str += "NO ACTION"
+					case .restrict:
+						str += "RESTRICT"
+					case .setNull:
+						str += "SET NULL"
+					case .setDefault:
+						str += "SET DEFAULT"
+					case .cascade:
+						str += "CASCADE"
+					}
+				}
+				extraCreate.append(str)
+			}
+		}
+		if !column.properties.contains(.primaryKey) && !column.optional {
+			addendum += " NOT NULL"
 		}
 		return "\(try quote(identifier: name)) \(typeName)\(addendum)"
 	}
