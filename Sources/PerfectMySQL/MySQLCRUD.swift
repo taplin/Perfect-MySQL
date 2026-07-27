@@ -156,7 +156,17 @@ class MySQLCRUDRowReader<K : CodingKey>: KeyedDecodingContainerProtocol, @unchec
 			}
 			return try JSONDecoder().decode(type, from: data)
 		case .wrapped:
-			throw CRUDDecoderError("Unsupported type: \(type) for key: \(key.stringValue)")
+			// Property-wrapper-backed columns (e.g. @ForeignKey) were never
+			// actually decodable on this connector -- unconditionally
+			// threw here instead of delegating to the wrapper's own
+			// init(from:), unlike Perfect-SQLite's SQLiteCRUDRowReader
+			// (ADR-0001 Phase 4: found live, via a real @ForeignKey
+			// round-trip test against a running MySQL server, not by
+			// inspection -- the write path worked, but any subsequent
+			// SELECT on that same row silently looked empty, since
+			// SelectIterator.next() swallows decode errors).
+			let decoder = CRUDColumnValueDecoder(source: KeyedDecodingContainer(self), key: key)
+			return try T(from: decoder)
 		}
 	}
 	func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
