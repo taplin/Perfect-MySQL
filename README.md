@@ -110,6 +110,28 @@ try db.create(User.self, policy: .reconcileTable)
 let users = try db.table(User.self).where(\User.name == "Alice").select().map { $0 }
 ```
 
+### Foreign Keys
+
+PerfectCRUD's `@ForeignKey` property wrapper generates a real `FOREIGN KEY ... REFERENCES ... ON DELETE ... ON UPDATE ...` constraint when creating a table, and this connector round-trips the wrapped value correctly on decode:
+
+```swift
+struct Author: Codable {
+    var id: Int
+    var name: String
+}
+
+struct Book: Codable {
+    var id: Int
+    @ForeignKey(Author.self, onDelete: cascade, onUpdate: restrict)
+    var authorId: Int
+}
+
+try db.create(Author.self, policy: .shallow)
+try db.create(Book.self, policy: .shallow) // DDL includes the FOREIGN KEY constraint
+```
+
+Available actions (each a plain global constant, not an enum case): `cascade`, `restrict`, `setNull`, `setDefault`, `ignore`. Verified against a real server: `ON DELETE CASCADE` actually removes the child row via InnoDB itself, not just correct DDL text, and inserting a child row with an unknown parent id is rejected by the constraint.
+
 ### Dynamic PerfectCRUD Rows
 
 Perfect-MySQL also supports PerfectCRUD's dynamic read API. This is useful for
