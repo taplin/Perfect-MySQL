@@ -1,19 +1,28 @@
 # Perfect-MySQL
 
+<p align="center">
+    <img src="https://img.shields.io/badge/Swift-6.2-orange.svg?style=flat" alt="Swift 6.2">
+    <img src="https://img.shields.io/badge/Platforms-macOS%2012%2B-lightgray.svg?style=flat" alt="Platforms macOS 12+">
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg?style=flat" alt="License Apache 2.0"></a>
+</p>
+
 A Swift 6 wrapper around the MySQL client library (libmysqlclient), providing both a raw MySQL API and a PerfectCRUD integration layer.
 
 ## Status
 
-Perfect-MySQL is core infrastructure in the Perfect-Resurrection ecosystem, not a standalone/experimental library. It is depended on directly by [Perfect-Lasso](https://github.com/taplin/Perfect-Lasso) — a Swift reimplementation of the Lasso language, still in active development and not yet production-ready, though validated against real code from multiple production e-commerce sites — and by Perfect-NIO, Perfect-Session, and PerfectTemplate. It is the database driver used throughout that development and validation work. Regressions here affect that ongoing validation, not just this repo's own test suite.
+Perfect-MySQL is core, actively-used infrastructure, depended on directly by Perfect-NIO,
+Perfect-Session, and PerfectTemplate — not a standalone/experimental library.
 
 An `mysql-nio`-based async rewrite was considered and deliberately deferred — see [`Documentation/mysql-nio-integration-plan.md`](Documentation/mysql-nio-integration-plan.md) for the tradeoffs. This package remains the synchronous, blocking libmysqlclient wrapper described below.
+
+The pre-Swift-6 version of this package is preserved on the [`legacy`](../../tree/legacy) branch.
 
 ## Requirements
 
 - Swift 6.2+ (`Package.swift` declares `platforms: [.macOS(.v12)]`)
 - macOS: the Homebrew `mysql-client` formula is keg-only and bottled for a specific macOS floor that moves as Homebrew rotates supported OS versions — check `brew info mysql-client` for the current bottle tag before assuming compatibility (at time of writing, `sonoma`/14.0+) — or Linux with `libmysqlclient-dev` (no specific minimum distro version is enforced by `Package.swift`; Ubuntu 20.04+ is a reasonable practical floor)
 - MySQL 8.0+ client library (libmysqlclient)
-- `Package.swift` depends on [Perfect-CRUD](https://github.com/taplin/Perfect-CRUD) via `.package(url:, branch: "main")` — resolved by SwiftPM automatically, no sibling checkout needed
+- `Package.swift` depends on [Perfect-CRUD](https://github.com/PerfectlySoft/Perfect-CRUD) via `.package(url:, branch: "main")` — resolved by SwiftPM automatically, no sibling checkout needed
 
 ## macOS Setup
 
@@ -46,7 +55,7 @@ MySQL 8.0+ is required. On Ubuntu 20.04 and later the default `libmysqlclient-de
 
 ```swift
 // No tagged releases exist yet, so pin a branch rather than a version:
-.package(url: "https://github.com/taplin/Perfect-MySQL.git", branch: "main"),
+.package(url: "https://github.com/PerfectlySoft/Perfect-MySQL.git", branch: "main"),
 ```
 
 ```swift
